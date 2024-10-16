@@ -12,35 +12,55 @@
     <script>
         var player;
 
-        // YouTube IFrame APIを使用してプレーヤーを生成
         function onYouTubeIframeAPIReady() {}
 
-        // 引数で与えられたID、開始時間、再生時間を使用して動画をループ再生
-        function playYouTubeVideo(videoId, startTime, duration) {
-            var endTime = startTime + duration;  // 終了時間を計算
-            if (player) {
-                player.loadVideoById({videoId: videoId, startSeconds: startTime});
-            } else {
-                player = new YT.Player('player', {
-                    height: '390',
-                    width: '640',
-                    videoId: videoId,
-                    playerVars: {
-                        'autoplay': 1,
-                        'mute': 1
-                    },
-                    events: {
-                        'onReady': function (event) {
-                            event.target.seekTo(startTime);
-                            event.target.playVideo();
+        // URLのクエリパラメータから値を取得する関数
+        function getQueryParams() {
+            var params = {};
+            var queryString = window.location.search.substring(1);
+            var queries = queryString.split("&");
+            queries.forEach(function(query) {
+                var pair = query.split("=");
+                params[pair[0]] = decodeURIComponent(pair[1]);
+            });
+            return params;
+        }
+
+        // クエリパラメータからID、開始時間、再生時間を取得して動画を再生
+        function playYouTubeVideoWithParams() {
+            var params = getQueryParams();
+            var videoId = params.videoId;
+            var startTime = parseInt(params.startTime, 10) || 0;
+            var duration = parseInt(params.duration, 10) || 30;
+            var endTime = startTime + duration;
+
+            if (videoId) {
+                if (player) {
+                    player.loadVideoById({videoId: videoId, startSeconds: startTime});
+                } else {
+                    player = new YT.Player('player', {
+                        height: '390',
+                        width: '640',
+                        videoId: videoId,
+                        playerVars: {
+                            'autoplay': 1,
+                            'mute': 1
                         },
-                        'onStateChange': function (event) {
-                            if (event.data == YT.PlayerState.PLAYING) {
-                                checkTime(startTime, endTime);
+                        events: {
+                            'onReady': function (event) {
+                                event.target.seekTo(startTime);
+                                event.target.playVideo();
+                            },
+                            'onStateChange': function (event) {
+                                if (event.data == YT.PlayerState.PLAYING) {
+                                    checkTime(startTime, endTime);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
+            } else {
+                console.error("videoIdが指定されていません");
             }
         }
 
@@ -50,13 +70,11 @@
             if (currentTime >= endTime || currentTime < startTime) {
                 player.seekTo(startTime);
             }
-            setTimeout(function() { checkTime(startTime, endTime); }, 1000);  // 1秒ごとに時間をチェック
+            setTimeout(function() { checkTime(startTime, endTime); }, 1000);
         }
 
-        // Notionなど外部から呼び出す際は以下の関数を使用
-        function notionPlayVideo(videoId, startTime, duration) {
-            playYouTubeVideo(videoId, startTime, duration);
-        }
+        // ページ読み込み後にクエリパラメータから動画を再生
+        window.onload = playYouTubeVideoWithParams;
     </script>
 </body>
 </html>
