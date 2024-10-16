@@ -12,7 +12,10 @@
     <script>
         var player;
 
-        function onYouTubeIframeAPIReady() {}
+        // IFrame APIが読み込まれた後に呼び出される関数
+        function onYouTubeIframeAPIReady() {
+            playYouTubeVideoWithParams(); // APIが準備できたら動画を再生
+        }
 
         // URLのクエリパラメータから値を取得する関数
         function getQueryParams() {
@@ -72,8 +75,6 @@
             setTimeout(function() { checkTime(startTime, endTime); }, 1000);
         }
 
-        // ページ読み込み後にクエリパラメータから動画を再生
-        window.onload = playYouTubeVideoWithParams;
     </script>
 </body>
 </html>
