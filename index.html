@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Loop with Parameters</title>
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+    <div id="player"></div>
+
+    <script>
+        var player;
+
+        // YouTube IFrame APIを使用してプレーヤーを生成
+        function onYouTubeIframeAPIReady() {}
+
+        // 引数で与えられたID、開始時間、再生時間を使用して動画をループ再生
+        function playYouTubeVideo(videoId, startTime, duration) {
+            var endTime = startTime + duration;  // 終了時間を計算
+            if (player) {
+                player.loadVideoById({videoId: videoId, startSeconds: startTime});
+            } else {
+                player = new YT.Player('player', {
+                    height: '390',
+                    width: '640',
+                    videoId: videoId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'mute': 1
+                    },
+                    events: {
+                        'onReady': function (event) {
+                            event.target.seekTo(startTime);
+                            event.target.playVideo();
+                        },
+                        'onStateChange': function (event) {
+                            if (event.data == YT.PlayerState.PLAYING) {
+                                checkTime(startTime, endTime);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 動画の時間を監視してループ
+        function checkTime(startTime, endTime) {
+            var currentTime = player.getCurrentTime();
+            if (currentTime >= endTime || currentTime < startTime) {
+                player.seekTo(startTime);
+            }
+            setTimeout(function() { checkTime(startTime, endTime); }, 1000);  // 1秒ごとに時間をチェック
+        }
+
+        // Notionなど外部から呼び出す際は以下の関数を使用
+        function notionPlayVideo(videoId, startTime, duration) {
+            playYouTubeVideo(videoId, startTime, duration);
+        }
+    </script>
+</body>
+</html>
