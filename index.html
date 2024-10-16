@@ -47,14 +47,13 @@
                         videoId: videoId,
                         playerVars: {
                             'autoplay': 0,  // 自動再生を無効にする
-                            'mute': 1       // ここはユーザーがミュートで再生する場合
+                            'mute': 1       // ミュートで再生する場合
                         },
                         events: {
                             'onReady': function (event) {
-                                event.target.seekTo(startTime);
                                 setTimeout(function() {
-                                    event.target.seekTo(startTime); // 2回目のシークを呼び出す
-                                }, 500); // 500ミリ秒後に再度シーク
+                                    event.target.seekTo(startTime);
+                                }, 1000); // 1秒の遅延を追加してシークを試みる
                             },
                             'onStateChange': function (event) {
                                 if (event.data == YT.PlayerState.PLAYING) {
