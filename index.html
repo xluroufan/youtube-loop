@@ -52,6 +52,9 @@
                         events: {
                             'onReady': function (event) {
                                 event.target.seekTo(startTime);
+                                setTimeout(function() {
+                                    event.target.seekTo(startTime); // 2回目のシークを呼び出す
+                                }, 500); // 500ミリ秒後に再度シーク
                             },
                             'onStateChange': function (event) {
                                 if (event.data == YT.PlayerState.PLAYING) {
@@ -74,7 +77,6 @@
             }
             setTimeout(function() { checkTime(startTime, endTime); }, 1000);
         }
-
     </script>
 </body>
 </html>
